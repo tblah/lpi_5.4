@@ -8,6 +8,8 @@
 // if oldfd is invalid then fail with errno = EBADF and newfd is not closed
 // if oldfd is valid and oldfd = newfd then do nothing and return oldfd. 
 
+typedef enum {false, true} bool;
+
 void errExit(char* errMsg)
 {
 	int errorno = errno;
