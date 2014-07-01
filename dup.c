@@ -18,8 +18,15 @@ int dup(int oldfd) {
 
 int main(int argc, char* argv[])
 {
+	// create two fd: fd1 being a temporary file and fd2 being a dup of fd1
+	int fd1 = openTemporaryFile();
+
+	int fd2 = dup(fd1);
+	if (fd2 == -1)
+		errExit("dup");
+
 	// test dup
-	if (testDup() == false) {
+	if (testDup(fd1, fd2) == false) {
 		printf("Dup failed tests\n");
 		exit(EXIT_FAILURE);
 	}

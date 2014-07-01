@@ -20,6 +20,20 @@ void errExit(char* errMsg)
 	exit(EXIT_FAILURE);
 }
 
+int openTemporaryFile() {
+	FILE *tmp = tmpfile();	// create a temporary file for us to play with
+	bool ret = true;
+
+	if (tmp == NULL)
+		errExit("tmpfile");
+
+	int fd = fileno(tmp);	// we need the file descriptor of the temporary file
+	if (fd == -1)
+		errExit("fileno");
+
+	return fd;
+}
+
 bool testFileOffsetsEqual(int fd1, int fd2) {	// DRY for testDup
 	off_t offset1 = lseek(fd1, 0, SEEK_CUR);	// get offset for fd1
 	off_t offset2 = lseek(fd2, 0, SEEK_CUR);	// get offset for fd2
@@ -58,24 +72,9 @@ bool testFileStatusFlagsEqual(int fd1, int fd2) {
 	return false;
 }
 
-bool testDup() {
-	// create two fd: fd1 being a temporary file and fd2 being a dup of fd1
-
-	FILE *tmp = tmpfile();	// create a temporary file for us to play with
-	bool ret = true;
-
-	if (tmp == NULL)
-		errExit("tmpfile");
-
-	int fd1 = fileno(tmp);	// we need the file descriptor of the temporary file
-	if (fd1 == -1)
-		errExit("fileno");
-
-	int fd2 = dup(fd1);
-	if (fd2 == -1)
-		errExit("dup");
-
+bool testDup(int fd1, int fd2) {	// the dup-ing is done outside this function so that different dup functions can be tested
 	// if they are dup-ed then they should share a file offset
+	bool ret = true;
 
 	if (testFileOffsetsEqual(fd1, fd2) == true)
 		printf("Test 1: are file offsets equal to begin with? \t\t\t PASS\n");
@@ -122,6 +121,9 @@ bool testDup() {
 		printf("Test 5: are file status flags the same after a change? \t\t FAIL\n");
 		ret = false;
 	}
+
+	if (close(fd1) == -1)
+		errExit("close");
 
 	return ret;
 }
