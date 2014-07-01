@@ -24,7 +24,7 @@ bool testFileOffsetsEqual(int fd1, int fd2) {	// DRY for testDup
 	off_t offset1 = lseek(fd1, 0, SEEK_CUR);	// get offset for fd1
 	off_t offset2 = lseek(fd2, 0, SEEK_CUR);	// get offset for fd2
 
-	if (offset1 == -1 || offset2 == -1)
+	if ((offset1 == -1) || (offset2 == -1))
 		errExit("lseek: getting file offset");
 
 	if (offset1 == offset2)
@@ -39,7 +39,28 @@ void fileSeek(int fd, off_t amount) {
 
 }
 
+int fileGetFlags(int fd) {
+	int ret = fcntl(fd, F_GETFL);
+
+	if (ret == -1)
+		errExit("fcntl: getting file status flags");
+
+	return ret;
+}
+
+bool testFileStatusFlagsEqual(int fd1, int fd2) {
+	int flags1 = fileGetFlags(fd1);	// get file status flags
+	int flags2 = fileGetFlags(fd2);	// get file status flags
+
+	if (flags1 == flags2)
+		return true;
+
+	return false;
+}
+
 bool testDup() {
+	// create two fd: fd1 being a temporary file and fd2 being a dup of fd1
+
 	FILE *tmp = tmpfile();	// create a temporary file for us to play with
 	bool ret = true;
 
@@ -54,6 +75,8 @@ bool testDup() {
 	if (fd2 == -1)
 		errExit("dup");
 
+	// if they are dup-ed then they should share a file offset
+
 	if (testFileOffsetsEqual(fd1, fd2) == true)
 		printf("Test 1: are file offsets equal to begin with? \t\t\t PASS\n");
 	else {
@@ -66,16 +89,37 @@ bool testDup() {
 	if (testFileOffsetsEqual(fd1, fd2) == true)
 		printf("Test 2: are file offsets equal after seek in fd1? \t\t PASS\n");
 	else {
-		printf("Test 1: are file offsets equal after seek in fd1? \t\t FAIL\n");
+		printf("Test 2: are file offsets equal after seek in fd1? \t\t FAIL\n");
 		ret = false;
 	}
 
-	fileSeek(fd2, -1);
+	fileSeek(fd2, -1); // seek backwards by one byte
 
 	if (testFileOffsetsEqual(fd1, fd2) == true)
-		printf("Test 2: are file offsets equal after seek in fd2? \t\t PASS\n");
+		printf("Test 3: are file offsets equal after seek in fd2? \t\t PASS\n");
 	else {
-		printf("Test 1: are file offsets equal after seek in fd2? \t\t FAIL\n");
+		printf("Test 3: are file offsets equal after seek in fd2? \t\t FAIL\n");
+		ret = false;
+	}
+
+	// if they are dup-ed they should also share file status flags
+
+	if (testFileStatusFlagsEqual(fd1, fd2) == true)
+		printf("Test 4: are file status flags the same? \t\t\t PASS\n");
+	else {
+		printf("Test 4: are file status flags the same? \t\t\t FAIL\n");
+		ret = false;
+	}
+
+	int flags = fileGetFlags(fd1);
+	flags |= O_APPEND;
+	if (fcntl(fd2, F_SETFL, flags) == -1)
+		errExit("fcntl: setting flags");
+
+	if (testFileStatusFlagsEqual(fd1, fd2) == true)
+		printf("Test 5: are file status flags the same after a change? \t\t PASS\n");
+	else {
+		printf("Test 5: are file status flags the same after a change? \t\t FAIL\n");
 		ret = false;
 	}
 
