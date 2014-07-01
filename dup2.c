@@ -32,6 +32,7 @@ int dup2(int oldfd, int newfd) {
 
 int main(int argc, char* argv[])
 {
+	// create two fd: fd1 being a temporary file and fd2 being a dup of fd1
 	int fd1 = openTemporaryFile();
 	int fd2 = dup2(fd1, 100);
 	if (fd2 == -1)
@@ -43,6 +44,9 @@ int main(int argc, char* argv[])
 	}
 	else
 		printf("Dup2 passed tests\n");
+
+	if (close(fd1) == -1)	// explicit close is not necessary but good practice
+		errExit("close");
 
 	exit(EXIT_SUCCESS);
 }

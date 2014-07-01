@@ -33,5 +33,8 @@ int main(int argc, char* argv[])
 	else
 		printf("Dup passed tests\n");
 
+	if (close(fd1) == -1) // explicit close is not necessary but good practice
+		errExit("close");
+
 	exit(EXIT_SUCCESS);
 }

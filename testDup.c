@@ -122,8 +122,5 @@ bool testDup(int fd1, int fd2) {	// the dup-ing is done outside this function so
 		ret = false;
 	}
 
-	if (close(fd1) == -1)
-		errExit("close");
-
 	return ret;
 }
