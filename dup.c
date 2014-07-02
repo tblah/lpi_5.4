@@ -12,7 +12,7 @@
 // implement int dup(int oldfd) -> returns new dup-ed file descriptor on success or -1 on error
 
 int dup(int oldfd) {
-	printf("Running my dup()\n");
+	//printf("Running my dup()\n");
 	return fcntl(oldfd, F_DUPFD, 0);	// duplicate oldfd to the first available fd number greater than or equal to 0
 }
 

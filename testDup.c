@@ -77,36 +77,36 @@ bool testDup(int fd1, int fd2) {	// the dup-ing is done outside this function so
 	bool ret = true;
 
 	if (testFileOffsetsEqual(fd1, fd2) == true)
-		printf("Test 1: are file offsets equal to begin with? \t\t\t PASS\n");
+		printf("Test 1.0: are file offsets equal to begin with? \t\t PASS\n");
 	else {
-		printf("Test 1: are file offsets equal to begin with? \t\t\t FAIL\n");
+		printf("Test 1.0: are file offsets equal to begin with? \t\t FAIL\n");
 		ret = false;
 	}
 
 	fileSeek(fd1, 5);	// seek by 5 bytes
 
 	if (testFileOffsetsEqual(fd1, fd2) == true)
-		printf("Test 2: are file offsets equal after seek in fd1? \t\t PASS\n");
+		printf("Test 1.1: are file offsets equal after seek in fd1? \t\t PASS\n");
 	else {
-		printf("Test 2: are file offsets equal after seek in fd1? \t\t FAIL\n");
+		printf("Test 1.1: are file offsets equal after seek in fd1? \t\t FAIL\n");
 		ret = false;
 	}
 
 	fileSeek(fd2, -1); // seek backwards by one byte
 
 	if (testFileOffsetsEqual(fd1, fd2) == true)
-		printf("Test 3: are file offsets equal after seek in fd2? \t\t PASS\n");
+		printf("Test 1.2: are file offsets equal after seek in fd2? \t\t PASS\n");
 	else {
-		printf("Test 3: are file offsets equal after seek in fd2? \t\t FAIL\n");
+		printf("Test 1.2: are file offsets equal after seek in fd2? \t\t FAIL\n");
 		ret = false;
 	}
 
 	// if they are dup-ed they should also share file status flags
 
 	if (testFileStatusFlagsEqual(fd1, fd2) == true)
-		printf("Test 4: are file status flags the same? \t\t\t PASS\n");
+		printf("Test 1.3: are file status flags the same? \t\t\t PASS\n");
 	else {
-		printf("Test 4: are file status flags the same? \t\t\t FAIL\n");
+		printf("Test 1.3: are file status flags the same? \t\t\t FAIL\n");
 		ret = false;
 	}
 
@@ -116,9 +116,9 @@ bool testDup(int fd1, int fd2) {	// the dup-ing is done outside this function so
 		errExit("fcntl: setting flags");
 
 	if (testFileStatusFlagsEqual(fd1, fd2) == true)
-		printf("Test 5: are file status flags the same after a change? \t\t PASS\n");
+		printf("Test 1.4: are file status flags the same after a change? \t PASS\n");
 	else {
-		printf("Test 5: are file status flags the same after a change? \t\t FAIL\n");
+		printf("Test 1.4: are file status flags the same after a change? \t FAIL\n");
 		ret = false;
 	}
 
